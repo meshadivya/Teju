@@ -1,0 +1,72 @@
+1. Stored Procedures
+Definition: Precompiled SQL code blocks stored in the database for reuse.
+-- Create
+CREATE PROC usp_AddEmployee
+    @Name VARCHAR(100),
+    @DeptID INT
+AS
+BEGIN
+    INSERT INTO Employees(Name, DepartmentID)
+    VALUES (@Name, @DeptID)
+END
+
+-- Execute
+EXEC usp_AddEmployee 'John Doe', 3
+
+2. Parameters
+Definition: Input/output values passed to stored procedures.
+
+CREATE PROC usp_GetOrders
+    @CustomerID INT,
+    @MinAmount DECIMAL(10,2) = 0
+AS
+BEGIN
+    SELECT * FROM Orders 
+    WHERE CustomerID = @CustomerID 
+    AND Amount >= @MinAmount
+END
+
+EXEC usp_GetOrders @CustomerID = 5, @MinAmount = 100
+
+3. Triggers
+Definition: Automatic code that runs when DML events (INSERT/UPDATE/DELETE) occur.
+-- Audit trail trigger
+CREATE TRIGGER tr_OrderChanges
+ON Orders AFTER UPDATE
+AS
+BEGIN
+    INSERT INTO OrderAudit(OrderID, ChangeDate)
+    SELECT OrderID, GETDATE() FROM inserted
+END
+
+4. Batch Statements
+Definition: Groups of SQL statements executed together.
+-- Batch 1
+CREATE TABLE #TempData (ID INT, Value VARCHAR(20));
+GO
+
+-- Batch 2
+INSERT INTO #TempData VALUES (1, 'Test');
+GO
+
+5. Transactions
+Definition: Atomic units of work that succeed or fail completely.
+
+BEGIN TRANSACTION
+BEGIN TRY
+    UPDATE Accounts SET Balance = Balance - 50 WHERE AccountID = 1;
+    UPDATE Accounts SET Balance = Balance + 50 WHERE AccountID = 2;
+    COMMIT TRANSACTION
+END TRY
+BEGIN CATCH
+    ROLLBACK TRANSACTION
+    PRINT 'Transaction failed'
+END CATCH
+
+Key Features Summary
+Concept	Purpose	Key Clause
+Stored Procedure	Reusable SQL logic	CREATE PROC...AS
+Parameter	Pass values to procedures	@ParamName DataType
+Trigger	Auto-execute on data changes	CREATE TRIGGER...ON
+Batch	Group SQL statements	GO separator
+Transaction	Ensure data integrity	BEGIN/COMMIT TRAN
